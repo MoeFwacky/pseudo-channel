@@ -14,7 +14,6 @@
 # ./update-channels-from-git.sh
 #----
 
-dir=$(pwd)
 #----BEGIN EDITABLE VARS----
 if [ $# -gt 1 ]; then
 	echo "ERROR: Please only supply one argument"
@@ -93,20 +92,13 @@ read -p 'Number of Channels: ' number_of_channels
 		mkdir "pseudo-channel_$num"
 		fi
 	done
-	mkdir github_download
-	cd github_download
-	$SCRIPT_TO_EXECUTE_PLUS_ARGS
-	else
-	mkdir github_download
-	cd github_download
-	$SCRIPT_TO_EXECUTE_PLUS_ARGS
 fi
 
 
 #### Next, let's download the latest master version of information from GitHub and store it in a temporary folder
-#mkdir github_download
-#cd github_download
-#$SCRIPT_TO_EXECUTE_PLUS_ARGS
+mkdir github_download
+cd github_download
+$SCRIPT_TO_EXECUTE_PLUS_ARGS
 
 #### If necessary, install the required elements as defined by requirements.txt
 #### Also, ask user for information to fill in the plex_token and pseudo_config files
@@ -258,7 +250,6 @@ if [ "$FIRST_INSTALL" == "true" ]
 	sudo rm commercial-libraries.temp
 	sudo cp github_download/both-dir/pseudo_config.py ./
 	sudo cp github_download/both-dir/PseudoChannel.py ./
-	cd ..
 	else
 	cd ..
 fi
@@ -282,6 +273,7 @@ if [ "${#CHANNEL_DIR_ARR[@]}" -gt 1 ]; then
 
 		# Export critical files
 		mkdir ../.pseudo-temp
+		does_pseudo_temp_exist=yes
 
 		cp ./pseudo-channel.db ../.pseudo-temp 2>/dev/null
 
@@ -315,9 +307,12 @@ fi
 #### - Copy relevant files from github
 #### - Replace files originally removed
 echo "Updating channels folder"
-cd $dir
-# Export critical files
-mkdir .pseudo-temp
+
+#Export critical files
+if [[ "$does_pseudo_temp_exist" != yes ]]
+	then
+		mkdir .pseudo-temp
+fi
 
 cp ./pseudo-channel.db .pseudo-temp 2>/dev/null
 
@@ -348,7 +343,6 @@ sudo chmod -R 777 .
 echo "Update Complete"
 
 #### Write variables to config.cache
-> config.cache
 sudo sed -i "s/server_ip=.*/server_ip=$server_ip/" config.cache
 sudo sed -i "s/server_port=.*/server_port=$server_port/" config.cache
 sudo sed -i "s/server_token=.*/server_token=$server_token/" config.cache
